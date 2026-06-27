@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Wren & Thread — Small-batch ceramics and textiles handcrafted in Portland, Oregon. Every piece made by hand, one at a time." />
+  <title>Wren & Thread — Handmade Ceramics & Textiles</title>
+
+  <!-- Fonts: Playfair Display (display serif) + DM Sans (body grotesque) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ================================================================
+       DESIGN TOKENS
+    ================================================================ */
+    :root {
+      --forest:       #3D6B4F;
+      --forest-dark:  #2C5039;
+      --forest-light: #527D63;
+      --carbon:       #1A1A18;
+      --amber:        #B5936A;
+      --amber-light:  #C9AA85;
+      --white:        #FAFAF8;
+      --cream:        #F0E8D8;
+      --flax:         #C8B99A;
+      --flax-light:   #E2D9CC;
+      --text:         #3A3A38;
+      --text-muted:   #6B6860;
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --max-w: 1200px;
+      --nav-h: 72px;
+      --ease:  cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ================================================================
+       RESET & BASE
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--white);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { display: block; max-width: 100%; height: auto; }
+    a   { text-decoration: none; color: inherit; }
+    ul  { list-style: none; }
+
+    /* ================================================================
+       LAYOUT HELPERS
+    ================================================================ */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+
+    /* ================================================================
+       SCROLL ANIMATIONS
+    ================================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    .reveal.in-view { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ================================================================
+       BUTTONS
+    ================================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border: 1.5px solid transparent;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.25s var(--ease), color 0.25s var(--ease),
+                  border-color 0.25s var(--ease), transform 0.2s var(--ease);
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: var(--white);
+      color: var(--forest-dark);
+      border-color: var(--white);
+    }
+    .btn-primary:hover { background: var(--cream); border-color: var(--cream); }
+
+    .btn-ghost {
+      background: transparent;
+      color: rgba(250,250,248,0.78);
+      border-color: rgba(250,250,248,0.38);
+    }
+    .btn-ghost:hover {
+      color: var(--white);
+      border-color: rgba(250,250,248,0.7);
+      background: rgba(250,250,248,0.08);
+    }
+
+    .btn-forest {
+      background: var(--forest);
+      color: var(--white);
+      border-color: var(--forest);
+    }
+    .btn-forest:hover { background: var(--forest-dark); border-color: var(--forest-dark); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--forest);
+      border-color: var(--forest);
+    }
+    .btn-outline:hover { background: var(--forest); color: var(--white); }
+
+    /* ================================================================
+       NAV
+    ================================================================ */
+    .nav-wrap {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      transition: background 0.35s var(--ease), box-shadow 0.35s var(--ease);
+    }
+
+    /* Transparent over hero, white when scrolled */
+    .nav-wrap.scrolled {
+      background: rgba(250,250,248,0.96);
+      box-shadow: 0 1px 0 var(--flax-light);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .nav {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+      transition: color 0.3s var(--ease);
+      flex-shrink: 0;
+    }
+    .nav-wrap.scrolled .nav-logo { color: var(--carbon); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .nav-links a {
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: rgba(250,250,248,0.8);
+      letter-spacing: 0.02em;
+      transition: color 0.25s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: currentColor;
+      transition: width 0.3s var(--ease);
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-wrap.scrolled .nav-links a { color: var(--text-muted); }
+    .nav-wrap.scrolled .nav-links a:hover { color: var(--carbon); }
+
+    .nav-cta {
+      padding: 9px 22px;
+      border: 1.5px solid rgba(250,250,248,0.5);
+      border-radius: 2px;
+      font-weight: 500 !important;
+      color: var(--white) !important;
+      transition: background 0.25s, border-color 0.25s, color 0.25s !important;
+    }
+    .nav-cta:hover { background: var(--white) !important; color: var(--forest-dark) !important; border-color: var(--white) !important; }
+    .nav-cta::after { display: none !important; }
+
+    .nav-wrap.scrolled .nav-cta {
+      border-color: var(--forest) !important;
+      color: var(--forest) !important;
+      background: transparent !important;
+    }
+    .nav-wrap.scrolled .nav-cta:hover {
+      background: var(--forest) !important;
+      color: var(--white) !important;
+    }
+
+    /* Hamburger */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px; height: 36px;
+      padding: 4px;
+      background: none; border: none; cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 100%; height: 1.5px;
+      background: var(--white);
+      border-radius: 1px;
+      transition: transform 0.3s var(--ease), opacity 0.3s;
+    }
+    .nav-wrap.scrolled .nav-toggle span { background: var(--carbon); }
+
+    .nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* ================================================================
+       HERO
+    ================================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      background: var(--forest);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding-top: var(--nav-h);
+    }
+
+    /* Pottery image dissolved from the right into the green field */
+    .hero-image {
+      position: absolute;
+      inset: 0 0 0 40%;
+      z-index: 0;
+    }
+    .hero-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      /* Dissolve left edge into the forest green */
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, black 70%);
+      mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 35%, black 70%);
+    }
+
+    /* Subtle dark vignette at bottom for wave transition */
+    .hero-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgba(45, 80, 58, 0.6) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 80px 32px 120px;
+      width: 100%;
+    }
+
+    .hero-eyebrow {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber-light);
+      margin-bottom: 24px;
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(2.6rem, 5.5vw, 5.2rem);
+      line-height: 1.12;
+      color: var(--white);
+      max-width: 14em;
+      margin-bottom: 28px;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(250, 250, 248, 0.72);
+      max-width: 38ch;
+      margin-bottom: 44px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    /* Organic SVG wave at hero bottom */
+    .hero-wave {
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      z-index: 2;
+      line-height: 0;
+    }
+    .hero-wave svg { display: block; width: 100%; }
+
+    /* ================================================================
+       VALUES STRIP
+    ================================================================ */
+    .values {
+      background: var(--white);
+      padding: 80px 0;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .value-item {
+      padding: 40px 48px;
+      border-right: 1px solid var(--flax-light);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .value-item:last-child { border-right: none; }
+    .value-item:first-child { padding-left: 0; }
+
+    .value-icon {
+      width: 36px; height: 36px;
+      margin-bottom: 4px;
+      color: var(--forest);
+    }
+
+    .value-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--carbon);
+      line-height: 1.3;
+    }
+
+    .value-body {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+
+    /* ================================================================
+       PRODUCTS
+    ================================================================ */
+    .products {
+      background: var(--cream);
+      padding: 100px 0 110px;
+    }
+
+    .products-header {
+      max-width: var(--max-w);
+      margin: 0 auto 60px;
+      padding: 0 32px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .products-header-left {}
+
+    .products-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 400;
+      color: var(--carbon);
+      line-height: 1.2;
+    }
+
+    .products-grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .product-card {
+      background: var(--white);
+      border-radius: 2px;
+      overflow: hidden;
+      transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(26,26,24,0.1);
+    }
+
+    .product-img-wrap {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: var(--flax-light);
+    }
+
+    .product-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease);
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+
+    .product-tag {
+      position: absolute;
+      top: 14px; left: 14px;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--forest);
+      padding: 5px 10px;
+      border-radius: 1px;
+    }
+
+    /* Hover add-to-cart */
+    .product-action {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--carbon);
+      color: var(--white);
+      text-align: center;
+      padding: 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transform: translateY(100%);
+      transition: transform 0.3s var(--ease);
+    }
+    .product-card:hover .product-action { transform: translateY(0); }
+
+    .product-body {
+      padding: 20px 20px 24px;
+    }
+
+    .product-name {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--carbon);
+      margin-bottom: 5px;
+    }
+
+    .product-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+
+    .product-price {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--amber);
+      letter-spacing: 0.02em;
+    }
+
+    /* ================================================================
+       PROCESS / STORY
+    ================================================================ */
+    .process {
+      background: var(--white);
+      padding: 110px 0;
+    }
+
+    .process-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .process-image {
+      position: relative;
+    }
+
+    .process-image img {
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      border-radius: 2px;
+    }
+
+    /* Amber accent bar */
+    .process-image::before {
+      content: '';
+      position: absolute;
+      top: -20px; left: -20px;
+      width: 64px; height: 64px;
+      background: var(--amber);
+      border-radius: 1px;
+      z-index: -1;
+    }
+
+    .process-content {}
+
+    .process-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      font-weight: 400;
+      color: var(--carbon);
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+
+    .process-intro {
+      font-size: 0.97rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 44px;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--flax-light);
+    }
+    .step:first-child { border-top: 1px solid var(--flax-light); }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.5rem;
+      color: var(--flax);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 28px;
+      padding-top: 2px;
+    }
+
+    .step-text {}
+    .step-name {
+      font-weight: 500;
+      color: var(--carbon);
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+    .step-detail {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ================================================================
+       TESTIMONIALS
+    ================================================================ */
+    .testimonials {
+      background: var(--forest);
+      padding: 110px 0;
+      overflow: hidden;
+    }
+
+    .testimonials-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .testimonials-header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+
+    .testimonials-header .section-label { color: var(--amber-light); }
+
+    .testimonials-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.25;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .testimonial-card {
+      background: rgba(250,250,248,0.06);
+      border: 1px solid rgba(250,250,248,0.12);
+      border-radius: 2px;
+      padding: 44px;
+      position: relative;
+    }
+
+    .testimonial-mark {
+      font-family: var(--font-display);
+      font-size: 5rem;
+      line-height: 0.7;
+      color: var(--amber);
+      opacity: 0.5;
+      display: block;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    .testimonial-quote {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: rgba(250,250,248,0.9);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .testimonial-author {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber-light);
+    }
+
+    .testimonial-location {
+      font-size: 0.78rem;
+      color: rgba(250,250,248,0.4);
+      margin-top: 2px;
+    }
+
+    /* ================================================================
+       NEWSLETTER
+    ================================================================ */
+    .newsletter {
+      background: var(--cream);
+      padding: 110px 0;
+    }
+
+    .newsletter-inner {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 32px;
+      text-align: center;
+    }
+
+    .newsletter-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 400;
+      color: var(--carbon);
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .newsletter-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--flax);
+      border-radius: 2px;
+      overflow: hidden;
+      background: var(--white);
+      transition: border-color 0.25s;
+    }
+    .newsletter-form:focus-within { border-color: var(--forest); }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 15px 20px;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      border: none;
+      background: none;
+      color: var(--carbon);
+      outline: none;
+      min-width: 0;
+    }
+    .newsletter-input::placeholder { color: var(--text-muted); }
+
+    .newsletter-btn {
+      padding: 15px 28px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--forest);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.25s;
+    }
+    .newsletter-btn:hover { background: var(--forest-dark); }
+
+    .newsletter-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+    }
+
+    .newsletter-success {
+      display: none;
+      font-size: 0.95rem;
+      color: var(--forest);
+      font-weight: 500;
+      padding: 16px;
+      background: rgba(61,107,79,0.08);
+      border: 1px solid rgba(61,107,79,0.2);
+      border-radius: 2px;
+    }
+
+    /* ================================================================
+       FOOTER
+    ================================================================ */
+    .footer {
+      background: var(--carbon);
+      padding: 56px 0 36px;
+    }
+
+    .footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 48px;
+      flex-wrap: wrap;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(250,250,248,0.08);
+      margin-bottom: 32px;
+    }
+
+    .footer-brand {}
+    .footer-logo {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--white);
+      display: block;
+      margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: rgba(250,250,248,0.4);
+      line-height: 1.6;
+      max-width: 28ch;
+    }
+
+    .footer-nav-cols {
+      display: flex;
+      gap: 64px;
+      flex-wrap: wrap;
+    }
+    .footer-col-title {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(250,250,248,0.35);
+      margin-bottom: 18px;
+    }
+    .footer-col ul {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-col ul a {
+      font-size: 0.88rem;
+      color: rgba(250,250,248,0.55);
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover { color: var(--white); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .footer-copy {
+      font-size: 0.78rem;
+      color: rgba(250,250,248,0.25);
+    }
+    .footer-legal {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-legal a {
+      font-size: 0.78rem;
+      color: rgba(250,250,248,0.25);
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(250,250,248,0.6); }
+
+    /* ================================================================
+       MOBILE NAV OVERLAY
+    ================================================================ */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: var(--carbon);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 36px;
+      padding: 40px 32px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 2rem;
+      color: var(--white);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:hover { color: var(--amber-light); }
+
+    /* ================================================================
+       RESPONSIVE
+    ================================================================ */
+    @media (max-width: 1024px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-inner { gap: 52px; }
+    }
+
+    @media (max-width: 768px) {
+      :root { --nav-h: 64px; }
+
+      .nav-links, .nav-cta { display: none; }
+      .nav-toggle { display: flex; }
+
+      .hero-image { inset: 0 0 0 50%; opacity: 0.4; }
+      .hero-image img { -webkit-mask-image: none; mask-image: none; }
+
+      .hero-headline { font-size: clamp(2.2rem, 8vw, 3.4rem); }
+
+      .values-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .value-item {
+        padding: 32px 0;
+        border-right: none;
+        border-bottom: 1px solid var(--flax-light);
+      }
+      .value-item:last-child { border-bottom: none; }
+
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+      .process-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .process-image::before { display: none; }
+
+      .testimonials-grid { grid-template-columns: 1fr; gap: 24px; }
+      .testimonial-card { padding: 32px; }
+
+      .footer-top { flex-direction: column; gap: 40px; }
+      .footer-nav-cols { gap: 40px; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0 20px; }
+      .products-grid { grid-template-columns: 1fr; }
+      .newsletter-form { flex-direction: column; }
+      .newsletter-btn { width: 100%; padding: 15px; text-align: center; }
+    }
+
+    /* ================================================================
+       REDUCED MOTION
+    ================================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV
+  ============================================================ -->
+  <header class="nav-wrap" id="navbar">
+    <nav class="nav">
+      <a class="nav-logo" href="#home">Wren &amp; Thread</a>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#story">Our Process</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#shop" class="nav-cta">Shop Now</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile navigation overlay -->
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <a href="#home" class="mobile-link">Home</a>
+    <a href="#shop" class="mobile-link">Shop</a>
+    <a href="#story" class="mobile-link">Our Process</a>
+    <a href="#contact" class="mobile-link">Contact</a>
+  </div>
+
+  <!-- ============================================================
+       HERO — Forest green field; pottery image dissolves in from right
+  ============================================================ -->
+  <section id="home" class="hero">
+    <div class="hero-image" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=80"
+        alt=""
+        fetchpriority="high"
+      />
+    </div>
+
+    <div class="hero-content">
+      <span class="hero-eyebrow">Small-batch &mdash; Made by hand in Portland, OR</span>
+      <h1 class="hero-headline">Every piece holds the shape of the hands that made it.</h1>
+      <p class="hero-sub">Ceramics and textiles crafted in our studio, one at a time. Nothing mass-produced. Nothing rushed.</p>
+      <div class="hero-actions">
+        <a href="#shop" class="btn btn-primary">Shop the Collection</a>
+        <a href="#story" class="btn btn-ghost">See How We Work</a>
+      </div>
+    </div>
+
+    <!-- Organic wave transition to white body -->
+    <div class="hero-wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,28 C180,68 420,8 720,40 C1020,72 1260,14 1440,38 L1440,72 L0,72 Z" fill="#FAFAF8"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       VALUES — Three quiet commitments
+  ============================================================ -->
+  <section class="values" aria-label="Our values">
+    <div class="values-grid">
+
+      <div class="value-item reveal">
+        <svg class="value-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <circle cx="18" cy="18" r="14"/>
+          <polyline points="18,10 18,18 23,22"/>
+        </svg>
+        <h3 class="value-title">Made slowly</h3>
+        <p class="value-body">We work in small batches and never rush. Each piece gets the time it needs — and so does every person who makes it.</p>
+      </div>
+
+      <div class="value-item reveal reveal-delay-1">
+        <svg class="value-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M18 4 C10 8 4 14 4 22 C4 28 10 32 18 32 C26 32 32 28 32 22 C32 14 26 8 18 4Z"/>
+          <path d="M18 14 C14 16 12 20 12 22 C12 25 14.7 28 18 28 C21.3 28 24 25 24 22 C24 20 22 16 18 14Z" fill="currentColor" opacity="0.15"/>
+        </svg>
+        <h3 class="value-title">Natural materials</h3>
+        <p class="value-body">Stoneware clay, Belgian linen, plant-based dyes. We know where every material comes from, and why it matters.</p>
+      </div>
+
+      <div class="value-item reveal reveal-delay-2">
+        <svg class="value-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M8 30 L8 16 L18 8 L28 16 L28 30"/>
+          <rect x="14" y="20" width="8" height="10"/>
+          <polyline points="4,18 18,6 32,18"/>
+        </svg>
+        <h3 class="value-title">Yours forever</h3>
+        <p class="value-body">We design pieces for the long run — not for a season. The mug you buy today should still feel right in fifteen years.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PRODUCTS — The Collection
+  ============================================================ -->
+  <section id="shop" class="products">
+    <div class="products-header">
+      <div class="products-header-left">
+        <span class="section-label reveal">The Collection</span>
+        <h2 class="products-title reveal reveal-delay-1">Made for the everyday,<br><em>built to outlast it.</em></h2>
+      </div>
+      <a href="#shop" class="btn btn-outline reveal reveal-delay-2">View All Pieces</a>
+    </div>
+
+    <div class="products-grid">
+
+      <!-- Card 1 -->
+      <article class="product-card reveal">
+        <div class="product-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80"
+            alt="Hand-thrown stoneware mug in matte sage glaze"
+            loading="lazy"
+          />
+          <span class="product-tag">Bestseller</span>
+          <div class="product-action" aria-hidden="true">Add to Cart</div>
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Morning Ritual Mug</h3>
+          <p class="product-desc">Hand-thrown stoneware with a matte sage glaze. Holds 12 oz and fits every hand differently — because no two are alike.</p>
+          <span class="product-price">$48</span>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="product-card reveal reveal-delay-1">
+        <div class="product-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80"
+            alt="Handwoven linen table runner in natural ecru"
+            loading="lazy"
+          />
+          <div class="product-action" aria-hidden="true">Add to Cart</div>
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Harvest Table Runner</h3>
+          <p class="product-desc">Handwoven from Belgian linen. Loosely structured, softening with every wash. 14" x 72" — fits most tables.</p>
+          <span class="product-price">$92</span>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="product-card reveal reveal-delay-2">
+        <div class="product-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80"
+            alt="Set of three hand-pinched ceramic bud vases"
+            loading="lazy"
+          />
+          <span class="product-tag">New</span>
+          <div class="product-action" aria-hidden="true">Add to Cart</div>
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Field &amp; Shore Bud Vases</h3>
+          <p class="product-desc">Set of three hand-pinched vessels in graduated heights. Each holds a single stem beautifully.</p>
+          <span class="product-price">$76 <small style="font-weight:300;font-size:0.8em;color:var(--text-muted)">set of 3</small></span>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="product-card reveal reveal-delay-3">
+        <div class="product-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=600&q=80"
+            alt="Hand-dyed wool throw blanket in dusty indigo"
+            loading="lazy"
+          />
+          <div class="product-action" aria-hidden="true">Add to Cart</div>
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Dusk Woven Throw</h3>
+          <p class="product-desc">Plant-dyed in small batches with indigo and weld. 50" x 65" merino-linen blend. Gets softer with age.</p>
+          <span class="product-price">$145</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROCESS / STORY
+  ============================================================ -->
+  <section id="story" class="process">
+    <div class="process-inner">
+
+      <div class="process-image reveal">
+        <img
+          src="https://images.unsplash.com/photo-1481900931650-b6b59490db3e?auto=format&fit=crop&w=900&q=80"
+          alt="Studio workbench with clay tools and ceramic pieces in progress"
+          loading="lazy"
+        />
+      </div>
+
+      <div class="process-content">
+        <span class="section-label reveal">Our Process</span>
+        <h2 class="process-title reveal reveal-delay-1">Nothing leaves the studio until it's right.</h2>
+        <p class="process-intro reveal reveal-delay-2">We've been asked why we don't automate more. The honest answer: because the variations are the point. The slight asymmetry in the rim. The place where your thumb rests. That's where the object becomes yours.</p>
+
+        <div class="steps">
+          <div class="step reveal reveal-delay-1">
+            <span class="step-num">1</span>
+            <div class="step-text">
+              <p class="step-name">We gather materials</p>
+              <p class="step-detail">Clay sourced from the Pacific Northwest. Linen imported from Belgium. Dye plants grown or foraged locally.</p>
+            </div>
+          </div>
+          <div class="step reveal reveal-delay-2">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              <p class="step-name">We shape by hand</p>
+              <p class="step-detail">Thrown on the wheel or pinched by hand. Woven on floor looms. One piece at a time, every time.</p>
+            </div>
+          </div>
+          <div class="step reveal reveal-delay-3">
+            <span class="step-num">3</span>
+            <div class="step-text">
+              <p class="step-name">We fire or finish</p>
+              <p class="step-detail">Ceramics fire at cone 6 — a slow, even heat that brings out the depth in each glaze. Textiles are washed and blocked by hand.</p>
+            </div>
+          </div>
+          <div class="step reveal reveal-delay-4">
+            <span class="step-num">4</span>
+            <div class="step-text">
+              <p class="step-name">We inspect and ship</p>
+              <p class="step-detail">Every piece is checked before it's wrapped. Orders ship within 3–5 business days in recycled materials.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       TESTIMONIALS
+  ============================================================ -->
+  <section class="testimonials">
+    <div class="testimonials-inner">
+
+      <div class="testimonials-header">
+        <span class="section-label reveal">From Our Customers</span>
+        <h2 class="testimonials-title reveal reveal-delay-1">What people say when the piece arrives.</h2>
+      </div>
+
+      <div class="testimonials-grid">
+
+        <div class="testimonial-card reveal">
+          <span class="testimonial-mark" aria-hidden="true">"</span>
+          <p class="testimonial-quote">I've had my Wren mug for three years. It sits on my desk and every morning it reminds me that some things are worth making slowly. It's one of the few objects I genuinely love.</p>
+          <p class="testimonial-author">Marisol Chen</p>
+          <p class="testimonial-location">Portland, OR</p>
+        </div>
+
+        <div class="testimonial-card reveal reveal-delay-1">
+          <span class="testimonial-mark" aria-hidden="true">"</span>
+          <p class="testimonial-quote">The linen runner transformed our dining table. We eat there almost every night now. Small thing, but somehow it made the room feel like somewhere worth being.</p>
+          <p class="testimonial-author">Tom Becker</p>
+          <p class="testimonial-location">Seattle, WA</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       NEWSLETTER
+  ============================================================ -->
+  <section id="contact" class="newsletter">
+    <div class="newsletter-inner">
+      <span class="section-label reveal">Stay Close to the Studio</span>
+      <h2 class="newsletter-title reveal reveal-delay-1">New pieces. Process notes.<br>The occasional field trip.</h2>
+      <p class="newsletter-sub reveal reveal-delay-2">No weekly blasts, no flash sales. Just a note when something new comes out of the kiln or off the loom — a few times a month at most.</p>
+
+      <div class="reveal reveal-delay-3">
+        <form class="newsletter-form" id="newsletterForm" novalidate>
+          <input
+            class="newsletter-input"
+            type="email"
+            id="newsletterEmail"
+            placeholder="your@email.com"
+            autocomplete="email"
+            aria-label="Email address"
+            required
+          />
+          <button type="submit" class="newsletter-btn">Subscribe</button>
+        </form>
+        <p class="newsletter-note">No spam. Unsubscribe any time.</p>
+        <div class="newsletter-success" id="newsletterSuccess" role="status">
+          You're in. We'll be in touch when something new is ready.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+
+        <div class="footer-brand">
+          <span class="footer-logo">Wren &amp; Thread</span>
+          <p class="footer-tagline">Small-batch ceramics and textiles made by hand in Portland, Oregon. Est. 2017.</p>
+        </div>
+
+        <nav class="footer-nav-cols" aria-label="Footer navigation">
+          <div class="footer-col">
+            <p class="footer-col-title">Shop</p>
+            <ul>
+              <li><a href="#shop">Ceramics</a></li>
+              <li><a href="#shop">Textiles</a></li>
+              <li><a href="#shop">Gift Sets</a></li>
+              <li><a href="#shop">New Arrivals</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-title">Studio</p>
+            <ul>
+              <li><a href="#story">Our Process</a></li>
+              <li><a href="#story">Materials</a></li>
+              <li><a href="#contact">Wholesale</a></li>
+              <li><a href="#contact">Commissions</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-title">Help</p>
+            <ul>
+              <li><a href="#contact">Shipping</a></li>
+              <li><a href="#contact">Returns</a></li>
+              <li><a href="#contact">Care Guide</a></li>
+              <li><a href="#contact">Contact Us</a></li>
+            </ul>
+          </div>
+        </nav>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">&copy; 2025 Wren &amp; Thread. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ── 1. Navbar: transparent over hero, filled on scroll ─────────
+    const navbar     = document.getElementById('navbar');
+    const heroEl     = document.getElementById('home');
+
+    function updateNav() {
+      const heroBottom = heroEl ? heroEl.getBoundingClientRect().bottom : 0;
+      navbar.classList.toggle('scrolled', heroBottom < 80);
+    }
+
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav(); // init
+
+    // ── 2. Mobile menu toggle ───────────────────────────────────────
+    const navToggle  = document.getElementById('navToggle');
+    const mobileNav  = document.getElementById('mobileNav');
+
+    navToggle.addEventListener('click', () => {
+      const isOpen = mobileNav.classList.toggle('open');
+      navToggle.classList.toggle('open', isOpen);
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+      mobileNav.setAttribute('aria-hidden', String(!isOpen));
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // Close mobile nav when a link is tapped
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileNav.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        mobileNav.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // ── 3. Scroll-reveal via IntersectionObserver ───────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target); // animate once
+        }
+      });
+    }, { threshold: 0.12 });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // ── 4. Newsletter form ──────────────────────────────────────────
+    const newsletterForm    = document.getElementById('newsletterForm');
+    const newsletterInput   = document.getElementById('newsletterEmail');
+    const newsletterSuccess = document.getElementById('newsletterSuccess');
+
+    newsletterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const email = newsletterInput.value.trim();
+
+      // Basic email validation
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        newsletterInput.style.borderColor = 'transparent';
+        newsletterInput.style.boxShadow   = '0 0 0 2px #C04E4E inset';
+        newsletterInput.focus();
+        return;
+      }
+
+      // Reset error state
+      newsletterInput.style.boxShadow = '';
+
+      // Simulate async submit (replace with your actual endpoint)
+      const btn = newsletterForm.querySelector('.newsletter-btn');
+      btn.textContent = 'Subscribing…';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        newsletterForm.style.display    = 'none';
+        newsletterSuccess.style.display = 'block';
+      }, 900);
+    });
+
+    // Clear input error on type
+    newsletterInput.addEventListener('input', () => {
+      newsletterInput.style.boxShadow = '';
+    });
+
+    // ── 5. Active nav link tracking ────────────────────────────────
+    const sections  = document.querySelectorAll('section[id]');
+    const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+
+    function markActiveLink() {
+      const scrollMid = window.scrollY + window.innerHeight * 0.4;
+
+      sections.forEach(section => {
+        if (scrollMid >= section.offsetTop &&
+            scrollMid < section.offsetTop + section.offsetHeight) {
+          navAnchors.forEach(a => {
+            const matches = a.getAttribute('href') === `#${section.id}`;
+            a.style.color = matches ? 'var(--white)' : '';
+            if (navbar.classList.contains('scrolled')) {
+              a.style.color = matches ? 'var(--carbon)' : '';
+            }
+          });
+        }
+      });
+    }
+
+    window.addEventListener('scroll', markActiveLink, { passive: true });
+
+    // ── 6. Smooth scroll for all anchor links ─────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = target.getBoundingClientRect().top + window.scrollY - 72;
+          window.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
